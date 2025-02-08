@@ -2,5 +2,4 @@ numpy
 pandas
 yfinance
 python-dotenv
-schedule
 requests
