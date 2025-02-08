@@ -1,6 +1,7 @@
 import datetime
 import schedule
 import time
+import os
 
 from utils import (
     load_data,
@@ -11,19 +12,25 @@ from utils import (
     should_buy,
 )
 
+ETF_TICKER = os.getenv("ETF_TICKER")
+
 
 def main():
     data = load_data()
-    current_price = get_etf_price()
+    current_price = get_etf_price(ETF_TICKER)
 
     if current_price is None:
         print("Error: Could not fetch ETF price.")
         return
 
-    data["tracked_prices"].append([str(datetime.date.today()), current_price])
+    # Update today's price (overwrite if it exists)
+    today_str = str(datetime.date.today())
+    data["tracked_prices"][today_str] = current_price
     if len(data["tracked_prices"]) > 30:
-        data["tracked_prices"].pop(0)
+        oldest_date = min(data["tracked_prices"])
+        data["tracked_prices"].pop(oldest_date)
 
+    print(f"Today's {ETF_TICKER} price: {current_price}")
     buy_now, reason = should_buy(data, current_price)
     print(f"[{datetime.date.today()}] {reason}")
 
@@ -41,10 +48,14 @@ def main():
     save_data(data)
 
 
-# ------------------------- AUTOMATIC SCHEDULING -------------------------
+if __name__ == "__main__":
+    main()
 
-schedule.every().day.at("12:00").do(main)
 
-while True:
-    schedule.run_pending()
-    time.sleep(60)  # Check every minute
+# # ------------------------- AUTOMATIC SCHEDULING -------------------------
+
+# schedule.every().day.at("12:00").do(main)
+
+# while True:
+#     schedule.run_pending()
+#     time.sleep(60)  # Check every minute

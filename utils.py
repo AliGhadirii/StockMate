@@ -10,7 +10,6 @@ from dotenv import load_dotenv
 # Load environment variables from .env file
 load_dotenv()
 DATA_FILE = os.getenv("DATA_FILE")
-ETF_TICKER = os.getenv("ETF_TICKER")
 WAIT_PERIOD_DAYS = int(os.getenv("WAIT_PERIOD_DAYS"))
 EMAIL_SENDER = os.getenv("EMAIL_SENDER")
 EMAIL_RECEIVER = os.getenv("EMAIL_RECEIVER")
@@ -28,7 +27,7 @@ def load_data():
         "last_deposit_date": None,
         "deposit_amount": 0.0,
         "brokerage_balance": 0.0,
-        "tracked_prices": [],
+        "tracked_prices": {},
         "last_action": "None",
     }
 
@@ -39,7 +38,7 @@ def save_data(data):
         json.dump(data, f, indent=4)
 
 
-def get_etf_price():
+def get_etf_price(ETF_TICKER):
     """Fetch the latest ETF price."""
     etf = yf.Ticker(ETF_TICKER)
     hist = etf.history(period="1d")
