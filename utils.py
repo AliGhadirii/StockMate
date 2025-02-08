@@ -114,3 +114,20 @@ def send_telegram_message(message):
     url = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
     payload = {"chat_id": TELEGRAM_CHAT_ID, "text": message}
     requests.post(url, data=payload)
+
+
+def deposit(amount):
+    """Record a deposit into the brokerage account."""
+    data = load_data()
+    data["last_deposit_date"] = str(datetime.date.today())
+    data["deposit_amount"] = amount
+    data["brokerage_balance"] += amount
+    data["last_action"] = f"Deposited {amount}"
+    save_data(data)
+    print(f"Deposited {amount} into brokerage account.")
+
+
+def check_status():
+    """Print the current stored data."""
+    data = load_data()
+    print(json.dumps(data, indent=4))
