@@ -1,6 +1,4 @@
 import datetime
-import schedule
-import time
 import os
 import argparse
 
@@ -66,12 +64,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-# # ------------------------- AUTOMATIC SCHEDULING -------------------------
-
-# schedule.every().day.at("12:00").do(main)
-
-# while True:
-#     schedule.run_pending()
-#     time.sleep(60)  # Check every minute
