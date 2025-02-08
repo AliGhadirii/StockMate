@@ -1,10 +1,6 @@
-# Python packages
 numpy
 pandas
 yfinance
 python-dotenv
 schedule
-
-# Additional packages
-smtplib
 requests
