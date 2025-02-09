@@ -3,3 +3,6 @@ pandas
 yfinance
 python-dotenv
 requests
+azure-functions
+azure-storage-blob
+python-telegram-bot

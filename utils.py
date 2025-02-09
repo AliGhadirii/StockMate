@@ -5,24 +5,34 @@ import json
 import os
 import smtplib
 import requests
-from dotenv import load_dotenv
+from azure.storage.blob import BlobServiceClient
 
-# Load environment variables from .env file
-load_dotenv()
-DATA_FILE = os.getenv("DATA_FILE")
+# Environment variables
 WAIT_PERIOD_DAYS = int(os.getenv("WAIT_PERIOD_DAYS"))
 EMAIL_SENDER = os.getenv("EMAIL_SENDER")
 EMAIL_RECEIVER = os.getenv("EMAIL_RECEIVER")
 EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
 TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+STORAGE_CONNECTION_STRING = os.getenv("AzureWebJobsStorage")
+CONTAINER_NAME = os.getenv("CONTAINER_NAME")
+BLOB_NAME = os.getenv("BLOB_NAME")
 
 
-def load_data():
-    """Load investment data or initialize new tracking."""
-    if os.path.exists(DATA_FILE):
-        with open(DATA_FILE, "r") as f:
-            return json.load(f)
+def load_data(
+    connection_string=STORAGE_CONNECTION_STRING,
+    container_name=CONTAINER_NAME,
+    blob_name=BLOB_NAME,
+):
+    """Load investment data from Azure Blob Storage."""
+    blob_service_client = BlobServiceClient.from_connection_string(connection_string)
+    blob_client = blob_service_client.get_blob_client(
+        container=container_name, blob=blob_name
+    )
+
+    if blob_client.exists():
+        blob_data = blob_client.download_blob().readall()
+        return json.loads(blob_data)
     return {
         "last_deposit_date": None,
         "deposit_amount": 0.0,
@@ -32,10 +42,19 @@ def load_data():
     }
 
 
-def save_data(data):
-    """Save investment data to a file."""
-    with open(DATA_FILE, "w") as f:
-        json.dump(data, f, indent=4)
+def save_data(
+    data,
+    connection_string=STORAGE_CONNECTION_STRING,
+    container_name=CONTAINER_NAME,
+    blob_name=BLOB_NAME,
+):
+    """Save investment data to Azure Blob Storage."""
+    blob_service_client = BlobServiceClient.from_connection_string(connection_string)
+    blob_client = blob_service_client.get_blob_client(
+        container=container_name, blob=blob_name
+    )
+
+    blob_client.upload_blob(json.dumps(data, indent=4), overwrite=True)
 
 
 def get_etf_price(ETF_TICKER):
@@ -124,10 +143,4 @@ def deposit(amount):
     data["brokerage_balance"] += amount
     data["last_action"] = f"Deposited {amount}"
     save_data(data)
-    print(f"Deposited {amount} into brokerage account.")
-
-
-def check_status():
-    """Print the current stored data."""
-    data = load_data()
-    print(json.dumps(data, indent=4))
+    return f"Deposited {amount} into brokerage account."

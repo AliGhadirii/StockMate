@@ -2,6 +2,17 @@
   "IsEncrypted": false,
   "Values": {
     "FUNCTIONS_WORKER_RUNTIME": "python",
-    "AzureWebJobsStorage": "UseDevelopmentStorage=true"
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "ETF_TICKER": "IVV.AX",
+    "SAVINGS_INTEREST_RATE": "0.052",
+    "BROKERAGE_INTEREST_RATE": "0.0375",
+    "WAIT_PERIOD_DAYS": "30",
+    "EMAIL_SENDER": "your_email@gmail.com",
+    "EMAIL_PASSWORD": "your_app_password",
+    "EMAIL_RECEIVER": "your_email@gmail.com",
+    "TELEGRAM_BOT_TOKEN": "your_bot_token",
+    "TELEGRAM_CHAT_ID": "your_chat_id",
+    "CONTAINER_NAME": "data",
+    "BLOB_NAME": "investment_data.json"
   }
 }
