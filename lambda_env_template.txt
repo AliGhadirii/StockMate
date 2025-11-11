@@ -1,0 +1,45 @@
+# AWS Lambda Environment Variables Template for StockMate
+# Copy this template and fill in your actual values
+# These should be added in Lambda Console → Configuration → Environment variables
+
+# ============================================================================
+# ETF Configuration
+# ============================================================================
+ETF_TICKER=IVV.AX
+# Your ETF ticker symbol (e.g., IVV.AX, VOO, VTI, SPY, QQQ)
+
+WAIT_PERIOD_DAYS=30
+# Maximum days to wait before buying (default: 30)
+
+
+# ============================================================================
+# Telegram Configuration
+# ============================================================================
+TELEGRAM_BOT_TOKEN=YOUR_BOT_TOKEN_HERE
+# Get this from @BotFather on Telegram
+# Example format: 1234567890:ABCdefGHIjklMNOpqrsTUVwxyz
+
+TELEGRAM_CHAT_ID=YOUR_CHAT_ID_HERE
+# Your Telegram chat ID (get from @userinfobot)
+# Example: 123456789
+
+# ============================================================================
+# Google Drive Configuration
+# ============================================================================
+GOOGLE_CLIENT_ID=YOUR_CLIENT_ID_HERE.apps.googleusercontent.com
+# Client ID from Google Cloud Console OAuth credentials
+# Get from: https://console.cloud.google.com/apis/credentials
+
+GOOGLE_CLIENT_SECRET=YOUR_CLIENT_SECRET_HERE
+# Client secret from Google Cloud Console OAuth credentials
+# Format: GOCSPX-xxxxxxxxxxxxxxxxxxxxx
+
+GOOGLE_REFRESH_TOKEN=YOUR_REFRESH_TOKEN_HERE
+# Obtain using OAuth 2.0 Playground or get_google_drive_token.py script
+# Format: 1//0xxxxxxxxxxxxxxxxxxxxx
+
+GOOGLE_DRIVE_FILE_ID=YOUR_FILE_ID_HERE
+# File ID of your investment_data.json in Google Drive
+# Get from the file URL: drive.google.com/file/d/FILE_ID_HERE/view
+
+
