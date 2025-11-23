@@ -24,22 +24,41 @@ TELEGRAM_CHAT_ID=YOUR_CHAT_ID_HERE
 # Example: 123456789
 
 # ============================================================================
-# Google Drive Configuration
+# Google Drive Configuration (Service Account)
 # ============================================================================
-GOOGLE_CLIENT_ID=YOUR_CLIENT_ID_HERE.apps.googleusercontent.com
-# Client ID from Google Cloud Console OAuth credentials
-# Get from: https://console.cloud.google.com/apis/credentials
-
-GOOGLE_CLIENT_SECRET=YOUR_CLIENT_SECRET_HERE
-# Client secret from Google Cloud Console OAuth credentials
-# Format: GOCSPX-xxxxxxxxxxxxxxxxxxxxx
-
-GOOGLE_REFRESH_TOKEN=YOUR_REFRESH_TOKEN_HERE
-# Obtain using OAuth 2.0 Playground or get_google_drive_token.py script
-# Format: 1//0xxxxxxxxxxxxxxxxxxxxx
+GOOGLE_SERVICE_ACCOUNT_JSON={"type":"service_account","project_id":"your-project",...}
+# Full JSON content from your service account key file
+# Get from Google Cloud Console → IAM & Admin → Service Accounts
+# See: SERVICE_ACCOUNT_SETUP.md for detailed setup instructions
+# Benefits: Tokens never expire, zero maintenance, fully automated
 
 GOOGLE_DRIVE_FILE_ID=YOUR_FILE_ID_HERE
 # File ID of your investment_data.json in Google Drive
 # Get from the file URL: drive.google.com/file/d/FILE_ID_HERE/view
+# IMPORTANT: Share this file with your service account email (Editor permissions)
+
+# ============================================================================
+# Interactive Bot Commands (Optional but Recommended)
+# ============================================================================
+# The Lambda now supports interactive Telegram commands:
+#   /deposit <amount> - Record new deposit and start checking
+#   /bought <price>   - Record purchase and pause checking
+#   /status           - View current status
+#   /help             - Show available commands
+#
+# To enable interactive commands:
+# 1. Enable Lambda Function URL (Configuration → Function URL)
+# 2. Set Telegram webhook to your Lambda URL
+# 3. See: TELEGRAM_BOT_SETUP.md for detailed instructions
+#
+# Your JSON file should include a "status" field:
+#   "status": "active"  - Bot checks daily and sends signals
+#   "status": "paused"  - Bot is silent until next /deposit
+#
+# Workflow:
+#   You: /deposit 3700 → Bot: ✅ Tracking enabled
+#   [Bot sends daily buy signals when status is "active"]
+#   You: /bought 69.50 → Bot: ✅ Paused until next deposit
+#   [Bot stays silent until you send another /deposit]
 
 

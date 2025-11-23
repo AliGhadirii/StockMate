@@ -39,8 +39,11 @@ python3 -m pip install -r lambda_requirements.txt -t lambda_build --upgrade --qu
 echo "      Done."
 echo ""
 
-echo "[4/6] Copying Lambda function..."
+echo "[4/6] Copying Lambda function and modules..."
 cp lambda_function.py lambda_build/
+cp google_drive_client.py lambda_build/
+cp telegram_client.py lambda_build/
+cp etf_analysis.py lambda_build/
 echo "      Done."
 echo ""
 

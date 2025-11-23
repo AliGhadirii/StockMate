@@ -50,8 +50,11 @@ if errorlevel 1 (
 echo       Done.
 echo.
 
-echo [4/6] Copying Lambda function...
+echo [4/6] Copying Lambda function and modules...
 copy lambda_function.py lambda_build\ >nul
+copy google_drive_client.py lambda_build\ >nul
+copy telegram_client.py lambda_build\ >nul
+copy etf_analysis.py lambda_build\ >nul
 echo       Done.
 echo.
 

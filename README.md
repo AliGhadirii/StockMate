@@ -32,17 +32,17 @@ StockMate/
 
 ### Setup Instructions
 
-#### Step 1: Get Google Drive Credentials
+#### Step 1: Set Up Google Drive Service Account
 
+Follow the detailed guide: **`SERVICE_ACCOUNT_SETUP.md`**
+
+Quick summary:
 1. Go to [Google Cloud Console](https://console.cloud.google.com)
-2. Create a new project or select existing
-3. Enable Google Drive API
-4. Create OAuth 2.0 credentials (Desktop app)
-5. Run the credential helper:
-   ```bash
-   python get_google_drive_token.py
-   ```
-6. Save the output credentials (Client ID, Secret, Refresh Token, File ID)
+2. Create a Service Account
+3. Download the JSON key file
+4. Enable Google Drive API
+5. Create `investment_data.json` in your Google Drive
+6. Share the file with your service account email (Editor access)
 
 #### Step 2: Build Deployment Package
 
@@ -116,7 +116,7 @@ Click **General configuration** → **Edit**:
 
 Click **Environment variables** → **Edit** → **Add environment variable**
 
-Add all of these (8 total):
+Add all of these (5 total):
 
 | Key | Value | Example |
 |-----|-------|---------|
@@ -124,9 +124,7 @@ Add all of these (8 total):
 | `WAIT_PERIOD_DAYS` | Max days before buy | `30` |
 | `TELEGRAM_BOT_TOKEN` | From @BotFather | `123456789:ABCdef...` |
 | `TELEGRAM_CHAT_ID` | From @userinfobot | `123456789` |
-| `GOOGLE_CLIENT_ID` | OAuth Client ID | `xxx.apps.googleusercontent.com` |
-| `GOOGLE_CLIENT_SECRET` | OAuth Secret | `GOCSPX-xxxxx` |
-| `GOOGLE_REFRESH_TOKEN` | From token script | `1//0xxxxx` |
+| `GOOGLE_SERVICE_ACCOUNT_JSON` | Service account JSON | `{"type":"service_account",...}` |
 | `GOOGLE_DRIVE_FILE_ID` | Drive file ID | `1AbCdEf...` |
 
 Click **Save** after adding all variables.
@@ -308,9 +306,7 @@ Once testing works, add a trigger for daily automatic execution:
 | `WAIT_PERIOD_DAYS` | Max days before forced buy | `30` |
 | `TELEGRAM_BOT_TOKEN` | From @BotFather | `123456:ABC...` |
 | `TELEGRAM_CHAT_ID` | From @userinfobot | `123456789` |
-| `GOOGLE_CLIENT_ID` | OAuth Client ID | `xxx.apps.googleusercontent.com` |
-| `GOOGLE_CLIENT_SECRET` | OAuth Client Secret | `GOCSPX-xxx` |
-| `GOOGLE_REFRESH_TOKEN` | From helper script | `1//0xxx` |
+| `GOOGLE_SERVICE_ACCOUNT_JSON` | Service account JSON key | `{"type":"service_account",...}` |
 | `GOOGLE_DRIVE_FILE_ID` | JSON file ID | `1AbC...` |
 
 ### Security Notes
@@ -392,11 +388,11 @@ Once testing works, add a trigger for daily automatic execution:
 - ✅ Check if API endpoints are slow (check CloudWatch Logs)
 - ✅ May be temporary network issue - try again
 
-#### "Google Drive error" / "401 Unauthorized"
-- ✅ Refresh token may have expired - regenerate using OAuth Playground
-- ✅ Verify all 4 Google environment variables are correct
-- ✅ Check file ID is correct (from Drive file URL)
-- ✅ Ensure Drive API is enabled in Google Cloud Console
+#### "Google Drive error" / "401 Unauthorized"  
+- ✅ Verify service account JSON is correctly formatted
+- ✅ Check that Drive API is enabled in Google Cloud Console
+- ✅ Ensure the Drive file is shared with your service account email
+- ✅ Verify file ID is correct (from Drive file URL)
 
 #### "Telegram message failed"
 - ✅ Verify bot token format: `123456789:ABCdef...`
