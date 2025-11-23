@@ -32,21 +32,35 @@ def handle_telegram_command(event, context):
     Triggered by Telegram webhook when user sends a message to the bot.
     """
     try:
-        print(f"Received Telegram webhook: {json.dumps(event)[:200]}...")
+        print(f"Received Telegram webhook event")
+        
+        # Parse event based on source (Lambda Function URL vs API Gateway)
+        telegram_update = event
+        
+        # If using Lambda Function URL, body is a JSON string
+        if "body" in event and isinstance(event.get("body"), str):
+            print("📦 Detected Lambda Function URL format - parsing body")
+            telegram_update = json.loads(event["body"])
+        
+        print(f"Telegram update: {json.dumps(telegram_update)[:300]}...")
         
         # Initialize clients
         gdrive = GoogleDriveClient(GOOGLE_SERVICE_ACCOUNT_JSON, GOOGLE_DRIVE_FILE_ID)
         telegram = TelegramClient(TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID)
         
         # Process the command
-        success, response = telegram.process_command(event, gdrive, WAIT_PERIOD_DAYS)
+        success, response = telegram.process_command(telegram_update, gdrive, WAIT_PERIOD_DAYS)
         
         # Send response to user
         telegram.send_message(response)
         
         # Return success to Telegram (required for webhook)
+        # Format for Lambda Function URL
         return {
             "statusCode": 200,
+            "headers": {
+                "Content-Type": "application/json"
+            },
             "body": json.dumps({"ok": True})
         }
         
@@ -60,6 +74,9 @@ def handle_telegram_command(event, context):
             pass
         return {
             "statusCode": 200,
+            "headers": {
+                "Content-Type": "application/json"
+            },
             "body": json.dumps({"ok": True, "error": str(e)})
         }
 
@@ -128,7 +145,7 @@ def handle_scheduled_check(event, context):
         
         # Prepare message with emoji
         if buy_now:
-            message = f"✅ BUY SIGNAL\n\n{reason}\n\n💡 When you buy, send: /bought <price>"
+            message = f"✅ BUY SIGNAL\n\n{reason}\n\n💡 When you buy, send: /bought"
             data["last_action"] = f"Buy signal at {current_price}"
         else:
             message = f"⏳ WAIT\n\n{reason}"
@@ -182,9 +199,14 @@ def lambda_handler(event, context):
     print(f"Lambda invoked with event: {json.dumps(event)[:500]}...")
     
     # Detect trigger type
-    if "message" in event or "callback_query" in event:
-        # Triggered by Telegram webhook
-        print("🤖 Detected: Telegram webhook trigger")
+    # Check for Lambda Function URL (has "body" field) or direct Telegram webhook
+    if "body" in event:
+        # Lambda Function URL format
+        print("🤖 Detected: Telegram webhook via Function URL")
+        return handle_telegram_command(event, context)
+    elif "message" in event or "callback_query" in event:
+        # Direct Telegram webhook (API Gateway format)
+        print("🤖 Detected: Telegram webhook (direct)")
         return handle_telegram_command(event, context)
     else:
         # Triggered by EventBridge or manual test
