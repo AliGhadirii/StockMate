@@ -60,7 +60,7 @@ echo.
 
 echo [4.5/6] Cleaning up unnecessary files to reduce size...
 REM Remove test files, examples, and cache to reduce package size
-for /d /r lambda_build %%d in (tests __pycache__ *.dist-info) do @if exist "%%d" rmdir /s /q "%%d" 2>nul
+for /d /r lambda_build %%d in (tests __pycache__) do @if exist "%%d" rmdir /s /q "%%d" 2>nul
 del /s /q lambda_build\*.pyc 2>nul
 del /s /q lambda_build\*.pyo 2>nul
 echo       Done.

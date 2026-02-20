@@ -15,7 +15,7 @@ import datetime
 # Import our custom modules
 from google_drive_client import GoogleDriveClient
 from telegram_client import TelegramClient
-from etf_analysis import get_etf_price, should_buy
+from etf_analysis import get_etf_price, should_buy, backfill_price_history
 
 # Environment variables
 ETF_TICKER = os.getenv("ETF_TICKER")
@@ -131,11 +131,33 @@ def handle_scheduled_check(event, context):
         # Update today's price
         today_str = str(datetime.date.today())
         data["tracked_prices"][today_str] = current_price
-        
-        # Keep only last 30 days of prices
+
+        # Backfill historical prices if the lambda was offline for more than one day.
+        # A gap > 1 day means we missed runs; yfinance history fills those dates so
+        # analyze_trend has enough data points to produce a buy signal.
+        needs_backfill = False
+        if len(data["tracked_prices"]) < 5:
+            needs_backfill = True
+            print("⚠️ Fewer than 5 price entries — backfilling historical data")
+        else:
+            # Exclude today (just added) and find the second-most-recent date
+            previous_dates = sorted(k for k in data["tracked_prices"] if k != today_str)
+            if previous_dates:
+                last_date = datetime.date.fromisoformat(previous_dates[-1])
+                gap_days = (datetime.date.today() - last_date).days
+                if gap_days > 1:
+                    needs_backfill = True
+                    print(f"⚠️ Price history gap of {gap_days} days detected — backfilling")
+
+        if needs_backfill:
+            data["tracked_prices"] = backfill_price_history(ETF_TICKER, data["tracked_prices"])
+
+        # Keep only the most recent 30 days of prices, removing all excess at once
         if len(data["tracked_prices"]) > 30:
-            oldest_date = min(data["tracked_prices"])
-            data["tracked_prices"].pop(oldest_date)
+            sorted_dates = sorted(data["tracked_prices"].keys())
+            for old_date in sorted_dates[:-30]:
+                del data["tracked_prices"][old_date]
+            print(f"Trimmed price history to 30 entries")
         
         print(f"Today's {ETF_TICKER} price: {current_price}")
         
